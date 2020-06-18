@@ -8,9 +8,18 @@
   <body>
     <header id="header">
     </header>
-    <webview class="webview" src="https://docs.google.com" allowpopups></webview>
+    <div class="container">
+
+      <webview id="docs" class="webview" src="https://docs.google.com" allowpopups></webview>
+    </div>
     <script>
       require('./renderer.js')
+      var webview = document.getElementById('docs');
+      webview.addEventListener('dom-ready', function () {
+        webview.insertCSS('#headingStyleSeparator, #printButton, #spellGrammarCheckButton, #undoButton, #redoButton { display: none; }');
+        webview.insertCSS('div#docs-omnibox-toolbar, #docs-omnibox-autocomplete, #formatPainterButton, #zoomSelect, #zoomComboBoxSeparator { display: none; }');
+        webview.insertCSS('div#docs-toolbar-wrapper { padding-left: 10px !important; }');
+      });
     </script>
   </body>
 </html>

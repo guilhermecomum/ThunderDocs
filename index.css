@@ -1,73 +1,95 @@
+* {
+  height: 100%;
+}
 body {
-    margin: 0;
+  margin: 0;
 }
 
 header {
-    position: fixed;
-    height: 38px;
-    width: 100%;
-    -webkit-app-region: drag;
-    background-color: #fff;
+  position: fixed;
+  height: 38px;
+  width: 100%;
+  -webkit-app-region: drag;
+  background-color: #fff;
+}
+
+.container {
+  display: flex;
+}
+.sidebar {
+  width: 300px;
+  background: #ccd;
 }
 
 /* WebView */
 .webview {
-    margin-top: 38px;
+  margin-top: 38px;
+  width: 100%;
+  /* position: absolute; */
+  /* top: 0px; */
+  /* right: 0px; */
+  /* left: 0px; */
+  /* bottom: 0px; */
+}
 
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    left: 0px;
-    bottom: 0px;
+#t-num-fmt-currency,
+#t-num-fmt-percent,
+#t-strikethrough,
+#t-text-rotation,
+#t-zoom,
+#t-undo,
+#t-redo,
+#t-print,
+#t-zoom-separator{
+  display: none;
 }
 
 
 /* Window Controls */
 
 #window-controls {
-    display: grid;
-    grid-template-columns: repeat(3, 46px);
-    position: absolute;
-    top: 0;
-    right: 0;
-    height: 100%;
-    font-family: "Segoe MDL2 Assets";
-    font-size: 10px;
-  }
-  #window-controls .button {
-    grid-row: 1 / span 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-  }
-  #window-controls #min-button {
-    grid-column: 1;
-  }
-  #window-controls #max-button, #window-controls #restore-button {
-    grid-column: 2;
-  }
-  #window-controls #close-button {
-    grid-column: 3;
-  }
+  display: grid;
+  grid-template-columns: repeat(3, 46px);
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  font-family: "Segoe MDL2 Assets";
+  font-size: 10px;
+}
+#window-controls .button {
+  grid-row: 1 / span 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+#window-controls #min-button {
+  grid-column: 1;
+}
+#window-controls #max-button, #window-controls #restore-button {
+  grid-column: 2;
+}
+#window-controls #close-button {
+  grid-column: 3;
+}
 
-  #window-controls {
-    -webkit-app-region: no-drag;
-  }
-  #window-controls .button {
-    user-select: none;
-    cursor: default;
-    opacity: 0.8;
-  }
-  #window-controls .button:hover {
-    background: rgba(255,255,255,0.2);
-    opacity: 1;
-  }
-  #window-controls #close-button:hover {
-    background: #E81123;
-  }
-  #window-controls #restore-button {
-    display: none;
-  }
-  
+#window-controls {
+  -webkit-app-region: no-drag;
+}
+#window-controls .button {
+  user-select: none;
+  cursor: default;
+  opacity: 0.8;
+}
+#window-controls .button:hover {
+  background: rgba(255,255,255,0.2);
+  opacity: 1;
+}
+#window-controls #close-button:hover {
+  background: #E81123;
+}
+#window-controls #restore-button {
+  display: none;
+}
