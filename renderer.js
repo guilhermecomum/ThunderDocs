@@ -86,32 +86,49 @@ async function listGnocsChildrens(gnocs) {
   return renderFiles(res.data.files);
 }
 
+function updateWebview(webview, url) {
+  webview.setAttribute("src", url);
+  webview.addEventListener("dom-ready", e => {
+    webview.insertCSS(
+      "#headingStyleSeparator, #printButton, #spellGrammarCheckButton, #undoButton, #redoButton { display: none; }"
+    );
+    webview.insertCSS(
+      "div#docs-omnibox-toolbar, #docs-omnibox-autocomplete, #formatPainterButton, #zoomSelect, #zoomComboBoxSeparator { display: none; }"
+    );
+    webview.insertCSS(
+      "div#docs-toolbar-wrapper { padding-left: 10px !important; }"
+    );
+  });
+}
+
 async function renderFiles(files) {
   const sidebar = document.querySelector("sidebar");
   const list = document.querySelector("ul");
+  const webview = document.querySelector("webview");
   const render = ({ name, id }) => {
     const li = document.createElement("li");
     const a = document.createElement("a");
     const url = "https://docs.google.com/document/d/" + id;
-    a.setAttribute("href", url);
-    a.innerHTML = name;
-    li.appendChild(a);
+    li.innerHTML = name;
+    li.addEventListener("click", e => {
+      updateWebview(webview, url);
+    });
     list.appendChild(li);
   };
   files.forEach(item => render(item));
 }
 
 //runSample();
-const webview = document.querySelector("webview");
-webview.addEventListener("new-window", e => {
-  // if user click link...
-  event.preventDefault();
-  if (e.url.includes("docs.google.com")) {
-    popupwin(e.url);
-  } else {
-    require("electron").shell.openExternal(e.url);
-  }
-});
+// const webview = document.querySelector("webview");
+// webview.addEventListener("new-window", e => {
+//   // if user click link...
+//   event.preventDefault();
+//   if (e.url.includes("docs.google.com")) {
+//     popupwin(e.url);
+//   } else {
+//     require("electron").shell.openExternal(e.url);
+//   }
+// });
 
 if (os.platform() != "darwin") {
   webview.style.marginTop = "0px";
