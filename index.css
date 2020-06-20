@@ -1,5 +1,6 @@
-* {
+html,body {
   height: 100%;
+  min-height: 100%;
 }
 body {
   margin: 0;
@@ -15,6 +16,7 @@ header {
 
 .container {
   display: flex;
+  height: 100%;
 }
 .sidebar {
   width: 300px;

@@ -5,8 +5,9 @@
   "author": "Vista1nik",
   "description": "Unofficial Google Docs app.",
   "dependencies": {
+    "@google-cloud/local-auth": "^1.0.0",
     "eslint": "^5.4.0",
-    "googleapis": "39",
+    "googleapis": "^52.1.0",
     "mocha": "^5.2.0",
     "spectron": "^3.8.0"
   },
