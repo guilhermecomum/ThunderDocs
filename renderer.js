@@ -5,7 +5,7 @@ const { remote, ipcRenderer } = require("electron");
 const os = require("os");
 const mainProcess = remote.require("./main");
 const { BrowserWindow } = remote;
-const { login, logout } = require("./auth");
+const { login } = require("./auth");
 const { google } = require("googleapis");
 const drive = google.drive("v3");
 let auth;
@@ -76,8 +76,6 @@ async function getGnocsFolder() {
   }
 }
 
-getGnocsFolder();
-
 async function listGnocsChildrens(gnocs) {
   console.log(`'${gnocs.id}' in parents`);
   const res = await drive.files.list({
@@ -101,15 +99,18 @@ function updateWebview(webview, url) {
   });
 }
 
+const sidebar = document.getElementById("sidebar");
+const docs = document.getElementById("docs");
 async function renderFiles(files) {
-  const sidebar = document.querySelector("sidebar");
   const list = document.querySelector("ul");
   const webview = document.querySelector("webview");
   const render = ({ name, id }) => {
     const li = document.createElement("li");
-    const a = document.createElement("a");
+    const i = document.createElement("i");
+    i.classList.add("fa", "fa-file-text");
     const url = "https://docs.google.com/document/d/" + id;
     li.innerHTML = name;
+    li.insertAdjacentElement("afterbegin", i);
     li.addEventListener("click", e => {
       updateWebview(webview, url);
     });
@@ -118,18 +119,15 @@ async function renderFiles(files) {
   files.forEach(item => render(item));
 }
 
-//runSample();
-// const webview = document.querySelector("webview");
-// webview.addEventListener("new-window", e => {
-//   // if user click link...
-//   event.preventDefault();
-//   if (e.url.includes("docs.google.com")) {
-//     popupwin(e.url);
-//   } else {
-//     require("electron").shell.openExternal(e.url);
-//   }
-// });
+const toggleSidebar = document.getElementById("toggle-sidebar");
+toggleSidebar.addEventListener("click", e => {
+  if (sidebar.clientWidth >= 100) {
+    sidebar.style.width = "50px";
+    docs.style.opacity = "0";
+  } else {
+    sidebar.style.width = "300px";
+    docs.style.opacity = "1.0";
+  }
+});
 
-if (os.platform() != "darwin") {
-  webview.style.marginTop = "0px";
-}
+getGnocsFolder();

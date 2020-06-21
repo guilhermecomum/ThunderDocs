@@ -2,15 +2,21 @@
 <html>
   <head>
     <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="font-awesome.min.css">
     <title>ThunderDocs</title>
   </head>
   <body>
     <div class="container">
       <div class="sidebar" id="sidebar">
-        <ul></ul>
+        <div id="docs">
+        <ul>
+        </ul>
+        </div>
+        <button id="toggle-sidebar">>></button>
       </div>
-      <webview id="docs" class="webview" src="https://docs.google.com" allowpopups></webview>
+      <webview class="webview" src="https://docs.google.com" allowpopups></webview>
     </div>
     <script>
       require('./renderer.js')
