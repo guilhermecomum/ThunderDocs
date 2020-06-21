@@ -69,6 +69,14 @@ header {
   margin-right: 10px;
 }
 
+#controls {
+    display: flex;
+}
+
+#controls button {
+    flex: 1;
+}
+
 /* WebView */
 .webview {
   width: 100%;

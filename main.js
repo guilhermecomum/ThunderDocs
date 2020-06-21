@@ -44,8 +44,8 @@ exports.popupwin = targeturl => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     titleBarStyle: "hiddenInset",
-    width: 800,
-    height: 600
+    width: 1024,
+    height: 768
   });
 
   // and load the index.html of the app.

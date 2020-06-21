@@ -5,17 +5,26 @@ const { remote, ipcRenderer } = require("electron");
 const os = require("os");
 const mainProcess = remote.require("./main");
 const { BrowserWindow } = remote;
+const prompt = require("electron-prompt");
 const { login } = require("./auth");
 const { google } = require("googleapis");
 const drive = google.drive("v3");
+const gdocs = google.docs("v1");
 let auth;
+let gnocsFolder;
+
+// Elements
+const sidebar = document.getElementById("sidebar");
+const docs = document.getElementById("docs");
+const list = document.querySelector("ul");
+const webview = document.querySelector("webview");
 
 const popupwin = async targeturl => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     titleBarStyle: "hiddenInset",
-    width: 800,
-    height: 600
+    width: 1024,
+    height: 768
   });
 
   // and load the index.html of the app.
@@ -67,24 +76,25 @@ async function getGnocsFolder() {
     q: "mimeType = 'application/vnd.google-apps.folder' and name = 'gNotes'"
   });
   if (res.data.files.length !== 0) {
-    const gnocs = res.data.files.find(
+    gnocsFolder = res.data.files.find(
       file => file.name.toLocaleLowerCase() === "gnotes"
     );
-    return listGnocsChildrens(gnocs);
+    return listGnocsChildrens(gnocsFolder);
   } else {
     return createGnocsFolder();
   }
 }
 
 async function listGnocsChildrens(gnocs) {
-  console.log(`'${gnocs.id}' in parents`);
+  list.innerHTML = "";
   const res = await drive.files.list({
-    q: `'${gnocs.id}' in parents`
+    q: `'${gnocs.id}' in parents and trashed = false`
   });
+  console.log("Files: ", res);
   return renderFiles(res.data.files);
 }
 
-function updateWebview(webview, url) {
+function updateWebview(url) {
   webview.setAttribute("src", url);
   webview.addEventListener("dom-ready", e => {
     webview.insertCSS(
@@ -99,11 +109,7 @@ function updateWebview(webview, url) {
   });
 }
 
-const sidebar = document.getElementById("sidebar");
-const docs = document.getElementById("docs");
 async function renderFiles(files) {
-  const list = document.querySelector("ul");
-  const webview = document.querySelector("webview");
   const render = ({ name, id }) => {
     const li = document.createElement("li");
     const i = document.createElement("i");
@@ -112,7 +118,7 @@ async function renderFiles(files) {
     li.innerHTML = name;
     li.insertAdjacentElement("afterbegin", i);
     li.addEventListener("click", e => {
-      updateWebview(webview, url);
+      updateWebview(url);
     });
     list.appendChild(li);
   };
@@ -122,12 +128,49 @@ async function renderFiles(files) {
 const toggleSidebar = document.getElementById("toggle-sidebar");
 toggleSidebar.addEventListener("click", e => {
   if (sidebar.clientWidth >= 100) {
-    sidebar.style.width = "50px";
+    sidebar.style.width = "70px";
     docs.style.opacity = "0";
   } else {
     sidebar.style.width = "300px";
     docs.style.opacity = "1.0";
   }
+});
+
+const addDoc = document.getElementById("add-doc");
+addDoc.addEventListener("click", e => {
+  prompt("Doc Title").then(async title => {
+    if (title === null) {
+      console.log("user cancelled");
+    } else {
+      // const createResponse = await gdocs.documents.create({
+      //     requestBody: {
+      //       title: r
+      //     }
+      //   });
+      const folderId = gnocsFolder.id;
+      var fileMetadata = {
+        name: title,
+        mimeType: "application/vnd.google-apps.document",
+        parents: [folderId]
+      };
+      await drive.files.create(
+        {
+          resource: fileMetadata,
+          fields: "id"
+        },
+        function(err, file) {
+          if (err) {
+            // Handle error
+            console.error(err);
+          } else {
+            const url = "https://docs.google.com/document/d/" + file.data.id;
+            updateWebview(url);
+            listGnocsChildrens(gnocsFolder);
+          }
+        }
+      );
+    }
+  });
 });
 
 getGnocsFolder();
