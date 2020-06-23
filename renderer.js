@@ -79,19 +79,21 @@ async function getGnocsFolder() {
     gnocsFolder = res.data.files.find(
       file => file.name.toLocaleLowerCase() === "gnotes"
     );
-    return listGnocsChildrens(gnocsFolder);
+    const childrens = await listFolderChildrens(gnocsFolder.id);
+    return renderChildrens(childrens);
   } else {
     return createGnocsFolder();
   }
 }
 
-async function listGnocsChildrens(gnocs) {
+async function listFolderChildrens(id) {
   list.innerHTML = "";
   const res = await drive.files.list({
-    q: `'${gnocs.id}' in parents and trashed = false`
+    q: `'${id}' in parents and trashed = false`,
+    fields: "files(id, name, parents, mimeType)"
   });
   console.log("Files: ", res);
-  return renderFiles(res.data.files);
+  return res.data.files;
 }
 
 function updateWebview(url) {
@@ -109,17 +111,33 @@ function updateWebview(url) {
   });
 }
 
-async function renderFiles(files) {
-  const render = ({ name, id }) => {
+async function handleFolderClick(id, name, parents) {
+  list.innerHTML = "";
+  const childrens = await listFolderChildrens(id);
+  const currentFolder = document.getElementById("current-folder");
+  currentFolder.innerHTML = name || "Home";
+  currentFolder.dataset.parentFolder = parents[0] || gnocsFolder.id;
+  renderChildrens(childrens);
+}
+
+async function renderChildrens(files) {
+  const render = ({ name, id, mimeType, parents }) => {
     const li = document.createElement("li");
     const i = document.createElement("i");
-    i.classList.add("fa", "fa-file-text");
-    const url = "https://docs.google.com/document/d/" + id;
+    if (mimeType === "application/vnd.google-apps.folder") {
+      i.classList.add("folder", "fa", "fa-folder");
+      li.addEventListener("click", e => {
+        handleFolderClick(id, name, parents);
+      });
+    } else {
+      i.classList.add("fa", "fa-file-text");
+      const url = "https://docs.google.com/document/d/" + id;
+      li.addEventListener("click", e => {
+        updateWebview(url);
+      });
+    }
     li.innerHTML = name;
     li.insertAdjacentElement("afterbegin", i);
-    li.addEventListener("click", e => {
-      updateWebview(url);
-    });
     list.appendChild(li);
   };
   files.forEach(item => render(item));
@@ -134,6 +152,11 @@ toggleSidebar.addEventListener("click", e => {
     sidebar.style.width = "300px";
     docs.style.opacity = "1.0";
   }
+});
+
+const breadcrumbs = document.getElementById("breadcrumbs");
+breadcrumbs.addEventListener("click", async e => {
+  handleFolderClick();
 });
 
 const addDoc = document.getElementById("add-doc");
@@ -158,14 +181,15 @@ addDoc.addEventListener("click", e => {
           resource: fileMetadata,
           fields: "id"
         },
-        function(err, file) {
+        async function(err, file) {
           if (err) {
             // Handle error
             console.error(err);
           } else {
             const url = "https://docs.google.com/document/d/" + file.data.id;
             updateWebview(url);
-            listGnocsChildrens(gnocsFolder);
+            const childrens = await listFolderChildrens(gnocsFolder.id);
+            renderChildrens(childrens);
           }
         }
       );

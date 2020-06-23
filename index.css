@@ -69,6 +69,10 @@ header {
   margin-right: 10px;
 }
 
+.sidebar ul li i.folder {
+    color: #5f6268;
+}
+
 #controls {
     display: flex;
 }
