@@ -12,6 +12,7 @@ const drive = google.drive("v3");
 const gdocs = google.docs("v1");
 let auth;
 let gnocsFolder;
+let breadcrumbs;
 
 // Elements
 const sidebar = document.getElementById("sidebar");
@@ -80,6 +81,7 @@ async function getGnocsFolder() {
       file => file.name.toLocaleLowerCase() === "gnotes"
     );
     const childrens = await listFolderChildrens(gnocsFolder.id);
+    breadcrumbs = [{ name: "Home", id: gnocsFolder.id }];
     return renderChildrens(childrens);
   } else {
     return createGnocsFolder();
@@ -111,12 +113,24 @@ function updateWebview(url) {
   });
 }
 
-async function handleFolderClick(id, name, parents) {
+const currentFolder = document.getElementById("current-folder");
+
+async function handleBackButton() {
+  list.innerHTML = "";
+  if (breadcrumbs.length > 1) {
+    breadcrumbs.pop();
+  }
+  const index = breadcrumbs.length > 0 ? breadcrumbs.length - 1 : 0;
+  const childrens = await listFolderChildrens(breadcrumbs[index].id);
+  renderChildrens(childrens);
+  currentFolder.innerHTML = breadcrumbs[index].name;
+}
+
+async function handleFolderClick(id, name) {
   list.innerHTML = "";
   const childrens = await listFolderChildrens(id);
-  const currentFolder = document.getElementById("current-folder");
-  currentFolder.innerHTML = name || "Home";
-  currentFolder.dataset.parentFolder = parents[0] || gnocsFolder.id;
+  breadcrumbs.push({ name, id });
+  currentFolder.innerHTML = name;
   renderChildrens(childrens);
 }
 
@@ -154,9 +168,9 @@ toggleSidebar.addEventListener("click", e => {
   }
 });
 
-const breadcrumbs = document.getElementById("breadcrumbs");
-breadcrumbs.addEventListener("click", async e => {
-  handleFolderClick();
+const backButton = document.getElementById("breadcrumbs");
+backButton.addEventListener("click", async e => {
+  handleBackButton();
 });
 
 const addDoc = document.getElementById("add-doc");

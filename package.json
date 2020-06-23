@@ -19,7 +19,8 @@
     "test": "mocha",
     "start": "electron .",
     "build-win": "electron-packager . --overwrite --out=dist/ --platform=win32 --arch=x64 --icon=assets/icons/win/icon.ico",
-    "build-snap": "build --linux snap"
+    "build-snap": "build --linux snap",
+    "build-osx": "electron-packager . --out=dist --prune --asar --overwrite --platform=darwin --arch=x64"
   },
   "devDependencies": {
     "electron": "^4",
